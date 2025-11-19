@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Interactive Obsidian vault image processor.
+Interactive image processor for batch downscaling.
 
-Scans an Obsidian vault for large images and prompts for each one to downscale.
+Scans a directory recursively for large images and prompts for each one to downscale.
+Perfect for Obsidian vaults, presentation slides, web assets, and documentation.
 Backs up originals before replacing them.
 """
 
@@ -23,10 +24,10 @@ DIMENSION_THRESHOLD_PX = 1200
 class ImageCandidate:
     """Represents an image that might need downscaling."""
 
-    def __init__(self, path: Path, vault_root: Path):
+    def __init__(self, path: Path, root_dir: Path):
         self.path = path
-        self.vault_root = vault_root
-        self.relative_path = path.relative_to(vault_root)
+        self.root_dir = root_dir
+        self.relative_path = path.relative_to(root_dir)
         self.file_size = path.stat().st_size
 
         # Get dimensions
@@ -65,18 +66,18 @@ class ImageCandidate:
         )
 
 
-def find_images(vault_path: Path) -> list[ImageCandidate]:
-    """Find all images in the vault."""
+def find_images(directory_path: Path) -> list[ImageCandidate]:
+    """Find all images in the directory recursively."""
     images = []
 
     for ext in IMAGE_EXTENSIONS:
-        for img_path in vault_path.rglob(f"*{ext}"):
+        for img_path in directory_path.rglob(f"*{ext}"):
             # Skip hidden folders and backup folders
             if any(part.startswith(".") for part in img_path.parts):
                 continue
 
             try:
-                candidate = ImageCandidate(img_path, vault_path)
+                candidate = ImageCandidate(img_path, directory_path)
                 images.append(candidate)
             except Exception as e:
                 print(f"Warning: Could not process {img_path}: {e}")
@@ -84,20 +85,20 @@ def find_images(vault_path: Path) -> list[ImageCandidate]:
     return images
 
 
-def create_backup(image_path: Path, vault_root: Path, backup_date: str) -> Path:
+def create_backup(image_path: Path, root_dir: Path, backup_date: str) -> Path:
     """
     Create a backup of the original image.
 
     Args:
         image_path: Path to the image
-        vault_root: Root of the vault
+        root_dir: Root directory being processed
         backup_date: Date string for backup folder (YYYY-MM-DD)
 
     Returns:
         Path to the backup file
     """
-    relative_path = image_path.relative_to(vault_root)
-    backup_dir = vault_root / ".image-backups" / backup_date
+    relative_path = image_path.relative_to(root_dir)
+    backup_dir = root_dir / ".image-backups" / backup_date
     backup_path = backup_dir / relative_path
 
     # Create backup directory
@@ -109,30 +110,30 @@ def create_backup(image_path: Path, vault_root: Path, backup_date: str) -> Path:
     return backup_path
 
 
-def process_vault(
-    vault_path: Path,
+def process_directory(
+    directory_path: Path,
     max_width: int = DEFAULT_MAX_WIDTH,
     dry_run: bool = False,
     auto_yes: bool = False,
 ) -> None:
     """
-    Interactively process images in an Obsidian vault.
+    Interactively process images in a directory.
 
     Args:
-        vault_path: Path to the Obsidian vault
+        directory_path: Path to the directory to process
         max_width: Maximum width for downscaled images
         dry_run: If True, don't actually modify files
         auto_yes: If True, process all without prompting
     """
-    if not vault_path.exists():
-        print(f"Error: Vault not found at {vault_path}")
+    if not directory_path.exists():
+        print(f"Error: Directory not found at {directory_path}")
         sys.exit(1)
 
-    print(f"Scanning vault: {vault_path}")
+    print(f"Scanning directory: {directory_path}")
     print("=" * 80)
 
     # Find all images
-    all_images = find_images(vault_path)
+    all_images = find_images(directory_path)
     print(f"Found {len(all_images)} total images")
 
     # Filter to candidates that exceed thresholds
@@ -200,8 +201,8 @@ def process_vault(
         # Process the image
         try:
             # Create backup
-            backup_path = create_backup(candidate.path, vault_path, backup_date)
-            print(f"  ✓ Backed up to {backup_path.relative_to(vault_path)}")
+            backup_path = create_backup(candidate.path, directory_path, backup_date)
+            print(f"  ✓ Backed up to {backup_path.relative_to(directory_path)}")
 
             # Downscale to temporary location
             temp_path = candidate.path.with_suffix(candidate.path.suffix + ".tmp")
@@ -236,7 +237,7 @@ def process_vault(
     if not dry_run:
         print(f"Total space saved: {format_bytes(total_saved)}")
         if processed_count > 0:
-            print(f"\nBackups stored in: {vault_path}/.image-backups/{backup_date}/")
+            print(f"\nBackups stored in: {directory_path}/.image-backups/{backup_date}/")
             print("To restore an image:")
             print(f"  cp .image-backups/{backup_date}/path/to/image.png path/to/image.png")
 
@@ -246,24 +247,30 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Interactively downscale large images in an Obsidian vault",
+        description="Interactively downscale large images in a directory",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Process current directory (vault)
-  uv run python obsidian_processor.py
+  # Process current directory
+  uv run python image_processor.py
 
-  # Process specific vault
-  uv run python obsidian_processor.py /path/to/vault
+  # Process specific directory
+  uv run python image_processor.py /path/to/images
 
   # Use custom max width
-  uv run python obsidian_processor.py --max-width 1600
+  uv run python image_processor.py --max-width 1600
 
   # Dry run to see what would be processed
-  uv run python obsidian_processor.py --dry-run
+  uv run python image_processor.py --dry-run
 
   # Auto-process all without prompts
-  uv run python obsidian_processor.py --yes
+  uv run python image_processor.py --yes
+
+Use Cases:
+  - Obsidian vaults: Reduce storage while keeping notes readable
+  - Presentations: Optimize exported slide images
+  - Web assets: Compress images for faster loading
+  - Documentation: Shrink screenshot-heavy docs
 
 Thresholds (configurable in script):
   - File size: >{SIZE_THRESHOLD_KB}KB
@@ -272,11 +279,11 @@ Thresholds (configurable in script):
     )
 
     parser.add_argument(
-        "vault_path",
+        "directory_path",
         nargs="?",
         type=Path,
         default=Path.cwd(),
-        help="Path to Obsidian vault (default: current directory)",
+        help="Path to directory to process (default: current directory)",
     )
 
     parser.add_argument(
@@ -296,7 +303,7 @@ Thresholds (configurable in script):
 
     args = parser.parse_args()
 
-    print("Obsidian Image Downscaler")
+    print("Image Downscaler")
     print("=" * 80)
     print(f"Max width: {args.max_width}px")
     print("Method: Hybrid (pre+post sharpening)")
@@ -305,8 +312,8 @@ Thresholds (configurable in script):
     )
     print("")
 
-    process_vault(
-        args.vault_path, max_width=args.max_width, dry_run=args.dry_run, auto_yes=args.yes
+    process_directory(
+        args.directory_path, max_width=args.max_width, dry_run=args.dry_run, auto_yes=args.yes
     )
 
 

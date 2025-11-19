@@ -1,11 +1,11 @@
 #!/bin/bash
-# Setup script for Obsidian Image Downscaler skill
+# Setup script for Image Downscaler skill
 # This installs uv (if needed) and dependencies
 
 set -e
 
 echo "=========================================="
-echo "Obsidian Image Downscaler - Setup"
+echo "Image Downscaler - Setup"
 echo "=========================================="
 echo ""
 
@@ -69,11 +69,11 @@ echo "Setup Complete!"
 echo "=========================================="
 echo ""
 echo "Usage:"
-echo "  cd /path/to/obsidian/vault"
-echo "  uv run python $SCRIPT_DIR/scripts/obsidian_processor.py"
+echo "  cd /path/to/image/directory"
+echo "  uv run python $SCRIPT_DIR/scripts/image_processor.py"
 echo ""
 echo "For help:"
-echo "  uv run python $SCRIPT_DIR/scripts/obsidian_processor.py --help"
+echo "  uv run python $SCRIPT_DIR/scripts/image_processor.py --help"
 echo ""
 echo "See SKILL.md for full documentation."
 echo ""

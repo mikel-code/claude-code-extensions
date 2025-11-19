@@ -1,14 +1,14 @@
 ---
-name: image-downscale-skill
-description: Interactively downscale large images in Obsidian vaults using the hybrid method for text preservation. Backs up originals before replacing.
+name: image-downscale
+description: Interactively downscale large images in any directory using the hybrid method for text preservation. Perfect for Obsidian vaults, presentations, web assets, and documentation. Backs up originals before replacing.
 allowed-tools: Read, Write, Bash, Glob, AskUserQuestion
 ---
 
-# Obsidian Image Downscaler
+# Image Downscaler
 
 **⚠️ CRITICAL: ALL Python commands MUST use `uv run` prefix**
 
-This skill helps reduce the size of large images in Obsidian vaults while preserving text readability using the hybrid downscaling method (pre-sharpening + Lanczos + post-sharpening).
+This skill helps reduce the size of large images in any directory while preserving text readability using the hybrid downscaling method (pre-sharpening + Lanczos + post-sharpening). Perfect for optimizing images in Obsidian vaults, presentation slides, web assets, or any folder containing screenshots and documents.
 
 ## Features
 
@@ -36,11 +36,11 @@ This will:
 
 ### Basic Usage
 
-To process images in an Obsidian vault:
+To process images in a directory:
 
 ```bash
-cd /path/to/obsidian/vault
-uv run python {baseDir}/scripts/obsidian_processor.py
+cd /path/to/image/directory
+uv run python {baseDir}/scripts/image_processor.py
 ```
 
 **IMPORTANT**: Always use `uv run python` - never use `python` directly!
@@ -48,20 +48,20 @@ uv run python {baseDir}/scripts/obsidian_processor.py
 ### Options
 
 ```bash
-# Process a specific vault directory
-uv run python {baseDir}/scripts/obsidian_processor.py /path/to/vault
+# Process a specific directory
+uv run python {baseDir}/scripts/image_processor.py /path/to/directory
 
 # Use custom max width (default: 1200px)
-uv run python {baseDir}/scripts/obsidian_processor.py --max-width 1600
+uv run python {baseDir}/scripts/image_processor.py --max-width 1600
 
 # Dry run to see what would be processed (safe preview)
-uv run python {baseDir}/scripts/obsidian_processor.py --dry-run
+uv run python {baseDir}/scripts/image_processor.py --dry-run
 
 # Auto-process all without prompting
-uv run python {baseDir}/scripts/obsidian_processor.py --yes
+uv run python {baseDir}/scripts/image_processor.py --yes
 
 # Get help
-uv run python {baseDir}/scripts/obsidian_processor.py --help
+uv run python {baseDir}/scripts/image_processor.py --help
 ```
 
 ### Thresholds
@@ -71,11 +71,11 @@ Images are considered "large" if they exceed ANY of these thresholds:
 - **Width**: > 1200 px
 - **Height**: > 1200 px
 
-These can be customized by editing the constants at the top of `scripts/obsidian_processor.py`.
+These can be customized by editing the constants at the top of `scripts/image_processor.py`.
 
 ## Workflow
 
-1. **Scan**: Script scans the vault for all images
+1. **Scan**: Script scans the directory recursively for all images
 2. **Filter**: Identifies images exceeding thresholds
 3. **Interactive**: For each large image:
    - Shows current size and dimensions
@@ -89,16 +89,16 @@ These can be customized by editing the constants at the top of `scripts/obsidian
 ## Example Session
 
 ```bash
-$ cd ~/Documents/MyVault
-$ uv run python ~/image-downscale-skill/scripts/obsidian_processor.py
+$ cd ~/Documents/MyImages
+$ uv run python ~/image-downscale/scripts/image_processor.py
 
-Obsidian Image Downscaler
+Image Downscaler
 ================================================================================
 Max width: 1200px
 Method: Hybrid (pre+post sharpening)
 Mode: Interactive
 
-Scanning vault: /Users/mikel/Documents/MyVault
+Scanning directory: /Users/mikel/Documents/MyImages
 ================================================================================
 Found 45 total images
 Found 12 images exceeding thresholds:
@@ -122,7 +122,7 @@ Processed: 8 images
 Skipped: 4 images
 Total space saved: 12.3 MB
 
-Backups stored in: /Users/mikel/Documents/MyVault/.image-backups/2024-01-19/
+Backups stored in: /Users/mikel/Documents/MyImages/.image-backups/2024-01-19/
 To restore an image:
   cp .image-backups/2024-01-19/path/to/image.png path/to/image.png
 ```
@@ -152,7 +152,7 @@ rm -rf .image-backups/2024-01-19/
 
 ## Configuration
 
-To customize thresholds, edit `scripts/obsidian_processor.py`:
+To customize thresholds, edit `scripts/image_processor.py`:
 
 ```python
 # Near the top of the file
@@ -169,7 +169,7 @@ DEFAULT_MAX_WIDTH = 1200       # Default max width for downscaling
 - Direct execution without `uv run`
 
 **✅ ALWAYS use these commands:**
-- `uv run python scripts/obsidian_processor.py`
+- `uv run python scripts/image_processor.py`
 - `uv add package-name` (to add dependencies)
 - `uv sync` (to install/update dependencies)
 
@@ -214,14 +214,20 @@ cp -r .image-backups/2024-01-19/* .
 
 ## For Claude Code
 
-When the user asks to "downscale images in my vault" or similar:
+When the user asks to "downscale images" or "optimize images" or "reduce image sizes":
 
-1. Ask where their Obsidian vault is located
+1. Ask where their image directory is located (could be Obsidian vault, presentation folder, web assets, etc.)
 2. Offer to run in dry-run mode first to preview
-3. Run: `uv run python {baseDir}/scripts/obsidian_processor.py /path/to/vault --dry-run`
+3. Run: `uv run python {baseDir}/scripts/image_processor.py /path/to/directory --dry-run`
 4. Show the results
 5. If user approves, run without `--dry-run`
 6. **CRITICAL**: Always use `uv run python`, never plain `python`
+
+**Common use cases to recognize:**
+- "Downscale images in my Obsidian vault" → Obsidian vault optimization
+- "Optimize images in my presentation folder" → Presentation slide optimization
+- "Reduce image sizes for web" → Web asset optimization
+- "Process screenshots in this directory" → Documentation/screenshot optimization
 
 ## Technical Details
 

@@ -1,6 +1,6 @@
-# Obsidian Image Downscaler - Claude Code Skill
+# Image Downscaler - Claude Code Skill
 
-A Claude Code skill for interactively downscaling large images in Obsidian vaults while preserving text readability.
+A Claude Code skill for interactively downscaling large images while preserving text readability. Perfect for optimizing images in Obsidian vaults, presentation slides, web assets, or any directory containing screenshots and documents.
 
 ## Features
 
@@ -11,20 +11,28 @@ A Claude Code skill for interactively downscaling large images in Obsidian vault
 - 📊 **Progress tracking** - Shows space saved for each image and total
 - ⚡ **Lightweight** - No AI dependencies, just Pillow + NumPy
 
+## Use Cases
+
+- **Obsidian vaults** - Reduce storage while keeping notes readable
+- **Presentation slides** - Optimize exported images for sharing
+- **Web assets** - Compress images for faster loading
+- **Documentation** - Shrink screenshot-heavy docs
+- **Photo archives** - Downscale high-res images for everyday viewing
+
 ## Quick Start
 
 ### 1. Install
 
 ```bash
-cd image-downscale-skill
+cd image-downscale
 bash setup.sh
 ```
 
 ### 2. Use
 
 ```bash
-cd /path/to/your/obsidian/vault
-uv run python /path/to/image-downscale-skill/scripts/obsidian_processor.py
+cd /path/to/your/image/directory
+uv run python /path/to/image-downscale/scripts/image_processor.py
 ```
 
 See [SKILL.md](SKILL.md) for complete documentation.
@@ -35,16 +43,17 @@ When using this as a Claude Code skill, place it in your skills directory:
 
 ```bash
 # Option 1: Clone/copy to skills directory
-cp -r image-downscale-skill ~/.claude/skills/
+cp -r image-downscale ~/.claude/skills/
 
 # Option 2: Symlink to keep it version controlled elsewhere
-ln -s /path/to/image-downscale-skill ~/.claude/skills/image-downscale-skill
+ln -s /path/to/image-downscale ~/.claude/skills/image-downscale
 ```
 
 Then in Claude Code, you can say:
-- "Downscale images in my Obsidian vault"
-- "Reduce image sizes in my vault"
-- "Process large images in my vault"
+- "Downscale images in my directory"
+- "Reduce image sizes in my Obsidian vault"
+- "Optimize images in my presentation folder"
+- "Process large images in this directory"
 
 ## Configuration
 
@@ -55,21 +64,21 @@ Default settings:
 - **Method**: Hybrid (pre-sharpening + Lanczos + post-sharpening)
 - **Quality**: 95% (high quality JPEG)
 
-Customize by editing the constants in `scripts/obsidian_processor.py`.
+Customize by editing the constants in `scripts/image_processor.py`.
 
 ## Files
 
 ```
-image-downscale-skill/
-├── SKILL.md                    # Main skill documentation
-├── README.md                   # This file
-├── pyproject.toml              # Python dependencies
-├── setup.sh                    # Setup script
+image-downscale/
+├── SKILL.md                  # Main skill documentation
+├── README.md                 # This file
+├── pyproject.toml            # Python dependencies
+├── setup.sh                  # Setup script
 ├── scripts/
-│   ├── downscale_core.py      # Core downscaling logic
-│   └── obsidian_processor.py  # Main vault processor
+│   ├── downscale_core.py    # Core downscaling logic
+│   └── image_processor.py   # Main image processor
 └── references/
-    └── usage-guide.md         # Detailed usage guide
+    └── usage-guide.md       # Detailed usage guide
 ```
 
 ## Requirements
@@ -80,7 +89,7 @@ image-downscale-skill/
 
 ## How It Works
 
-1. Scans vault recursively for image files (png, jpg, jpeg, webp, etc.)
+1. Scans directory recursively for image files (png, jpg, jpeg, webp, etc.)
 2. Filters to only images exceeding size or dimension thresholds
 3. For each large image:
    - Shows current and projected size
@@ -110,7 +119,7 @@ image-downscale-skill/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd image-downscale-skill
+cd image-downscale
 
 # Install all dependencies including dev tools
 uv sync --all-groups

@@ -1,11 +1,11 @@
-# Obsidian Image Downscaler - Usage Guide
+# Image Downscaler - Usage Guide
 
 ## Quick Start
 
 ### 1. First-Time Setup
 
 ```bash
-cd /path/to/obsidian-image-downscale
+cd /path/to/image-downscale
 bash setup.sh
 ```
 
@@ -14,17 +14,23 @@ This only needs to be done once. It will:
 - Create a virtual environment (`.venv/`)
 - Install Pillow and NumPy
 
-### 2. Process Your Vault
+### 2. Process Your Images
 
 ```bash
-cd /path/to/your/obsidian/vault
-uv run python /path/to/obsidian-image-downscale/scripts/obsidian_processor.py
+cd /path/to/your/image/directory
+uv run python /path/to/image-downscale/scripts/image_processor.py
 ```
 
 Or from anywhere:
 ```bash
-uv run python /path/to/obsidian-image-downscale/scripts/obsidian_processor.py /path/to/vault
+uv run python /path/to/image-downscale/scripts/image_processor.py /path/to/directory
 ```
+
+**Use Cases:**
+- Obsidian vault: `/path/to/my-vault`
+- Presentation slides: `/path/to/presentation-exports`
+- Web assets: `/path/to/website/images`
+- Documentation: `/path/to/docs/screenshots`
 
 ## Common Usage Patterns
 
@@ -33,7 +39,7 @@ uv run python /path/to/obsidian-image-downscale/scripts/obsidian_processor.py /p
 See what would be processed without making any changes:
 
 ```bash
-uv run python scripts/obsidian_processor.py --dry-run
+uv run python scripts/image_processor.py --dry-run
 ```
 
 ### Auto-Process All
@@ -41,7 +47,7 @@ uv run python scripts/obsidian_processor.py --dry-run
 Skip interactive prompts and process all large images:
 
 ```bash
-uv run python scripts/obsidian_processor.py --yes
+uv run python scripts/image_processor.py --yes
 ```
 
 **Warning**: This will process ALL images over the threshold. Use `--dry-run` first to preview!
@@ -51,21 +57,21 @@ uv run python scripts/obsidian_processor.py --yes
 Change the target width for downscaling:
 
 ```bash
-# For smaller images (800px wide)
-uv run python scripts/obsidian_processor.py --max-width 800
+# For smaller images (800px wide - good for web/mobile)
+uv run python scripts/image_processor.py --max-width 800
 
-# For larger images (1600px wide)
-uv run python scripts/obsidian_processor.py --max-width 1600
+# For larger images (1600px wide - good for presentations/high-DPI)
+uv run python scripts/image_processor.py --max-width 1600
 ```
 
 ### Combining Options
 
 ```bash
 # Dry run with custom width
-uv run python scripts/obsidian_processor.py --dry-run --max-width 1000
+uv run python scripts/image_processor.py --dry-run --max-width 1000
 
 # Auto-process with custom width
-uv run python scripts/obsidian_processor.py --yes --max-width 1400
+uv run python scripts/image_processor.py --yes --max-width 1400
 ```
 
 ## Understanding Thresholds
@@ -78,7 +84,7 @@ Images are only processed if they exceed ANY of these:
 
 ### Customizing Thresholds
 
-Edit `scripts/obsidian_processor.py` and change these constants:
+Edit `scripts/image_processor.py` and change these constants:
 
 ```python
 SIZE_THRESHOLD_KB = 500        # Change file size threshold
@@ -110,12 +116,12 @@ Your options:
 Every processed image is backed up before being replaced:
 
 ```
-vault/
+my-images/
 ├── .image-backups/
 │   └── 2024-01-19/           # Date of processing
-│       └── attachments/
+│       └── subfolder/
 │           └── screenshot.png # Original image
-└── attachments/
+└── subfolder/
     └── screenshot.png         # Downscaled image
 ```
 
@@ -145,23 +151,23 @@ rm -rf .image-backups/2024-01-19/
 
 ### 1. Always Dry Run First
 
-Before processing a vault for the first time:
+Before processing a directory for the first time:
 ```bash
-uv run python scripts/obsidian_processor.py --dry-run
+uv run python scripts/image_processor.py --dry-run
 ```
 
 Review the list of images that would be processed. If it looks good, run without `--dry-run`.
 
 ### 2. Process Regularly
 
-Run this periodically as you add new images to your vault. Only new large images will be processed.
+Run this periodically as you add new images to your directories. Only new large images will be processed.
 
-### 3. Check Markdown Links
+### 3. Check File References
 
-After processing, your markdown links will still work since we replace the files in-place. But if you want to verify:
+After processing, file references will still work since we replace the files in-place. For Obsidian users with markdown links:
 
 ```bash
-# Search for broken image links (in vault root)
+# Search for image links (in directory root)
 grep -r "!\[\[.*\]\]" *.md
 ```
 
@@ -181,7 +187,7 @@ After processing, wait a week to make sure everything looks good in your vault, 
 
 Try increasing the max width:
 ```bash
-uv run python scripts/obsidian_processor.py --max-width 1600
+uv run python scripts/image_processor.py --max-width 1600
 ```
 
 Or restore from backups and try a different downscaling method (would require modifying the script).
@@ -190,13 +196,13 @@ Or restore from backups and try a different downscaling method (would require mo
 
 Dependencies not installed. Run:
 ```bash
-cd /path/to/obsidian-image-downscale
+cd /path/to/image-downscale
 uv sync
 ```
 
 ### Script is Slow
 
-The hybrid method processes ~2-5 images per second. For large vaults with many images:
+The hybrid method processes ~2-5 images per second. For directories with many images:
 
 1. Use `--dry-run` first to count images
 2. Consider processing in smaller batches
@@ -224,12 +230,12 @@ cd scripts
 uv run python downscale_core.py /path/to/input.png /path/to/output.png
 ```
 
-### Batch Process Multiple Vaults
+### Batch Process Multiple Directories
 
 ```bash
-for vault in ~/Documents/*/; do
-    echo "Processing: $vault"
-    uv run python scripts/obsidian_processor.py "$vault" --yes
+for dir in ~/Documents/*/; do
+    echo "Processing: $dir"
+    uv run python scripts/image_processor.py "$dir" --yes
 done
 ```
 
@@ -238,13 +244,13 @@ done
 Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-alias obsidian-downscale='uv run python /path/to/obsidian-image-downscale/scripts/obsidian_processor.py'
+alias image-downscale='uv run python /path/to/image-downscale/scripts/image_processor.py'
 ```
 
 Then use:
 ```bash
-cd /path/to/vault
-obsidian-downscale --dry-run
+cd /path/to/images
+image-downscale --dry-run
 ```
 
 ## Performance
@@ -258,7 +264,7 @@ obsidian-downscale --dry-run
 
 View all options:
 ```bash
-uv run python scripts/obsidian_processor.py --help
+uv run python scripts/image_processor.py --help
 ```
 
 Report issues or contribute at: [project repository]
