@@ -1,0 +1,264 @@
+# Obsidian Image Downscaler - Usage Guide
+
+## Quick Start
+
+### 1. First-Time Setup
+
+```bash
+cd /path/to/obsidian-image-downscale
+bash setup.sh
+```
+
+This only needs to be done once. It will:
+- Install `uv` if not present
+- Create a virtual environment (`.venv/`)
+- Install Pillow and NumPy
+
+### 2. Process Your Vault
+
+```bash
+cd /path/to/your/obsidian/vault
+uv run python /path/to/obsidian-image-downscale/scripts/obsidian_processor.py
+```
+
+Or from anywhere:
+```bash
+uv run python /path/to/obsidian-image-downscale/scripts/obsidian_processor.py /path/to/vault
+```
+
+## Common Usage Patterns
+
+### Preview Mode (Dry Run)
+
+See what would be processed without making any changes:
+
+```bash
+uv run python scripts/obsidian_processor.py --dry-run
+```
+
+### Auto-Process All
+
+Skip interactive prompts and process all large images:
+
+```bash
+uv run python scripts/obsidian_processor.py --yes
+```
+
+**Warning**: This will process ALL images over the threshold. Use `--dry-run` first to preview!
+
+### Custom Max Width
+
+Change the target width for downscaling:
+
+```bash
+# For smaller images (800px wide)
+uv run python scripts/obsidian_processor.py --max-width 800
+
+# For larger images (1600px wide)
+uv run python scripts/obsidian_processor.py --max-width 1600
+```
+
+### Combining Options
+
+```bash
+# Dry run with custom width
+uv run python scripts/obsidian_processor.py --dry-run --max-width 1000
+
+# Auto-process with custom width
+uv run python scripts/obsidian_processor.py --yes --max-width 1400
+```
+
+## Understanding Thresholds
+
+Images are only processed if they exceed ANY of these:
+
+- **File Size**: > 500 KB
+- **Width**: > 1200 px
+- **Height**: > 1200 px
+
+### Customizing Thresholds
+
+Edit `scripts/obsidian_processor.py` and change these constants:
+
+```python
+SIZE_THRESHOLD_KB = 500        # Change file size threshold
+DIMENSION_THRESHOLD_PX = 1200  # Change dimension threshold
+DEFAULT_MAX_WIDTH = 1200       # Change default max width
+```
+
+## Interactive Mode Details
+
+When processing interactively, for each image you'll see:
+
+```
+Image 1/12: attachments/screenshot.png
+  Current: 3840x2160 (2.4 MB)
+  Would downscale to: 1200x675 (~410.0 KB)
+  Estimated savings: 2.0 MB
+
+  Process this image? [y/n/skip-all/quit]:
+```
+
+Your options:
+- `y` or `yes` - Process this image
+- `n` or `no` - Skip this image
+- `skip-all` or `s` - Skip this and all remaining images
+- `quit` or `q` - Stop processing immediately
+
+## Backup System
+
+Every processed image is backed up before being replaced:
+
+```
+vault/
+├── .image-backups/
+│   └── 2024-01-19/           # Date of processing
+│       └── attachments/
+│           └── screenshot.png # Original image
+└── attachments/
+    └── screenshot.png         # Downscaled image
+```
+
+### Restoring Backups
+
+Restore a single image:
+```bash
+cp .image-backups/2024-01-19/attachments/image.png attachments/image.png
+```
+
+Restore all images from a session:
+```bash
+cp -r .image-backups/2024-01-19/* .
+```
+
+View all backup dates:
+```bash
+ls .image-backups/
+```
+
+Delete old backups after confirming everything is OK:
+```bash
+rm -rf .image-backups/2024-01-19/
+```
+
+## Tips & Best Practices
+
+### 1. Always Dry Run First
+
+Before processing a vault for the first time:
+```bash
+uv run python scripts/obsidian_processor.py --dry-run
+```
+
+Review the list of images that would be processed. If it looks good, run without `--dry-run`.
+
+### 2. Process Regularly
+
+Run this periodically as you add new images to your vault. Only new large images will be processed.
+
+### 3. Check Markdown Links
+
+After processing, your markdown links will still work since we replace the files in-place. But if you want to verify:
+
+```bash
+# Search for broken image links (in vault root)
+grep -r "!\[\[.*\]\]" *.md
+```
+
+### 4. Adjust Max Width Based on Use Case
+
+- **For web/mobile viewing**: 800-1000px
+- **For desktop reading**: 1200-1400px (default)
+- **For high-DPI displays**: 1600-2000px
+
+### 5. Keep Backups for a Week
+
+After processing, wait a week to make sure everything looks good in your vault, then delete the backup folder to reclaim space.
+
+## Troubleshooting
+
+### Images Look Blurry
+
+Try increasing the max width:
+```bash
+uv run python scripts/obsidian_processor.py --max-width 1600
+```
+
+Or restore from backups and try a different downscaling method (would require modifying the script).
+
+### "No module named 'PIL'"
+
+Dependencies not installed. Run:
+```bash
+cd /path/to/obsidian-image-downscale
+uv sync
+```
+
+### Script is Slow
+
+The hybrid method processes ~2-5 images per second. For large vaults with many images:
+
+1. Use `--dry-run` first to count images
+2. Consider processing in smaller batches
+3. Use `--yes` to avoid waiting for prompts
+
+### Need to Change Python Version
+
+Edit `.python-version`:
+```bash
+echo "3.11" > .python-version
+```
+
+Then reinstall:
+```bash
+rm -rf .venv uv.lock
+uv sync
+```
+
+## Advanced Usage
+
+### Test on a Single Image
+
+```bash
+cd scripts
+uv run python downscale_core.py /path/to/input.png /path/to/output.png
+```
+
+### Batch Process Multiple Vaults
+
+```bash
+for vault in ~/Documents/*/; do
+    echo "Processing: $vault"
+    uv run python scripts/obsidian_processor.py "$vault" --yes
+done
+```
+
+### Create a Shell Alias
+
+Add to your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+alias obsidian-downscale='uv run python /path/to/obsidian-image-downscale/scripts/obsidian_processor.py'
+```
+
+Then use:
+```bash
+cd /path/to/vault
+obsidian-downscale --dry-run
+```
+
+## Performance
+
+- **Processing speed**: ~0.1-0.5 seconds per image
+- **Memory usage**: ~100-200 MB
+- **Typical results**: 50-80% file size reduction for screenshots
+- **Quality**: Text remains fully readable at target size
+
+## Getting Help
+
+View all options:
+```bash
+uv run python scripts/obsidian_processor.py --help
+```
+
+Report issues or contribute at: [project repository]
