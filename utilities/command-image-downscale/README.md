@@ -130,14 +130,12 @@ Create `.image-downscale.json` in target directory:
 ```
 command-image-downscale/
 ├── image-downscale.md        # Command definition for Claude Code
-├── README.md                  # This file
+├── README.md                  # This file (complete documentation)
 ├── pyproject.toml             # Python dependencies
 ├── setup.sh                   # Setup script
-├── scripts/
-│   ├── downscale_core.py     # Core downscaling logic
-│   └── image_processor.py    # Utility for batch processing
-└── references/
-    └── usage-guide.md        # Detailed usage guide
+└── scripts/
+    ├── downscale_core.py     # Core downscaling logic
+    └── image_processor.py    # Utility for batch processing
 ```
 
 ## Requirements
