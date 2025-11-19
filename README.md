@@ -18,14 +18,14 @@ Extensions are organized by domain for easy discovery and maintenance:
 
 ```
 claude-code-extensions/
-├── coding/                      # Development tools & workflows
-│   ├── python/                  # Python-specific extensions
-│   └── javascript/              # JavaScript/Node.js extensions
-├── communication/               # Writing & communication
-├── data/                        # Data analysis & visualization
-├── utilities/                   # General-purpose tools
-│   └── skill-image-downscale/  # Image optimization skill
-└── shared/                      # Shared libraries & resources
+├── coding/                        # Development tools & workflows
+│   ├── python/                    # Python-specific extensions
+│   └── javascript/                # JavaScript/Node.js extensions
+├── communication/                 # Writing & communication
+├── data/                          # Data analysis & visualization
+├── utilities/                     # General-purpose tools
+│   └── command-image-downscale/  # Image optimization command
+└── shared/                        # Shared libraries & resources
 ```
 
 ### Planned Expansions
@@ -56,19 +56,19 @@ As the toolkit grows, additional domains will include:
 
    Each extension has its own installation instructions. Generally:
 
+   **For Commands:**
+   ```bash
+   # Symlink command file to Claude's commands directory
+   ln -s $(pwd)/utilities/command-image-downscale/image-downscale.md ~/.claude/commands/
+   ```
+
    **For Skills:**
    ```bash
    # Option 1: Symlink to keep updates synced
-   ln -s $(pwd)/utilities/skill-image-downscale ~/.claude/skills/skill-image-downscale
+   ln -s $(pwd)/path/to/skill ~/.claude/skills/skill-name
 
    # Option 2: Copy to Claude's skills directory
-   cp -r utilities/skill-image-downscale ~/.claude/skills/
-   ```
-
-   **For Commands:**
-   ```bash
-   # Symlink command files to Claude's commands directory
-   ln -s $(pwd)/path/to/command.md ~/.claude/commands/
+   cp -r path/to/skill ~/.claude/skills/
    ```
 
    **For Agents:**
@@ -78,7 +78,7 @@ As the toolkit grows, additional domains will include:
 
 3. **Run setup scripts (if applicable)**
    ```bash
-   cd utilities/skill-image-downscale
+   cd utilities/command-image-downscale
    bash setup.sh
    ```
 
@@ -86,18 +86,21 @@ As the toolkit grows, additional domains will include:
 
 ### Utilities
 
-#### Image Downscale (Skill)
-Interactively downscale large images while preserving text readability. Perfect for Obsidian vaults, presentations, web assets, and documentation.
+#### Image Downscale (Command)
+Downscale large images while preserving text readability. Context-aware command for optimizing specific images in your workflow, plus standalone utility for bulk processing.
 
-- **Type:** Skill
-- **Location:** `utilities/skill-image-downscale/`
-- **Use Cases:** Obsidian optimization, presentation slides, web assets
-- **Learn More:** [Image Downscale README](utilities/skill-image-downscale/README.md)
+- **Type:** Command (+ Python utility)
+- **Location:** `utilities/command-image-downscale/`
+- **Use Cases:**
+  - Command: Optimize images as you work (screenshots, diagrams in notes)
+  - Utility: Bulk vault maintenance, scheduled optimization
+- **Learn More:** [Image Downscale README](utilities/command-image-downscale/README.md)
 
 **Usage:**
 ```
-"Downscale images in my directory"
-"Optimize images in my Obsidian vault"
+/image-downscale path/to/image.png
+"Optimize the screenshot I just pasted"
+"Downscale images in this note"
 ```
 
 ---
@@ -113,7 +116,7 @@ Skills are specialized capabilities that Claude Code can invoke to perform speci
 - Can use Python, shell scripts, or other tools
 - Are invoked naturally in conversation
 
-**Example:** "Use the skill-image-downscale skill to optimize my screenshots"
+**Example:** "Use the data-analysis skill to process this CSV"
 
 ### Commands
 Commands are quick slash commands for common tasks. They:
@@ -122,7 +125,7 @@ Commands are quick slash commands for common tasks. They:
 - Provide templated workflows or quick actions
 - Are invoked with `/command-name`
 
-**Example:** `/scaffold-deck "AI in Healthcare"`
+**Example:** `/image-downscale screenshot.png`
 
 ### Agents
 Agents are autonomous assistants for complex, multi-step workflows. They:
