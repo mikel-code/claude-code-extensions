@@ -107,22 +107,21 @@ uv run python scripts/image_processor.py --yes
 
 ## Configuration
 
-### For Command Use
-The command uses default thresholds:
+**Default thresholds:**
 - **File size**: > 500 KB
-- **Dimensions**: > 1200 px
-- **Max width**: 1200 px
+- **Dimensions**: > 1200 px (width or height)
+- **Max width**: 1200 px (maintains aspect ratio)
 
-### For Utility Use
-Create `.image-downscale.json` in target directory:
+To customize, edit constants in `scripts/image_processor.py`:
+```python
+SIZE_THRESHOLD_KB = 500
+DIMENSION_THRESHOLD_PX = 1200
+DEFAULT_MAX_WIDTH = 1200
+```
 
-```json
-{
-  "scan_paths": ["Attachments", "Images"],
-  "max_width": 1200,
-  "size_threshold_kb": 500,
-  "dimension_threshold_px": 1200
-}
+Or use CLI arguments:
+```bash
+uv run python scripts/image_processor.py --max-width 1600
 ```
 
 ## Files
