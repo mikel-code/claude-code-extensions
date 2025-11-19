@@ -74,17 +74,45 @@ uv run python scripts/image_processor.py --dry-run --max-width 1000
 uv run python scripts/image_processor.py --yes --max-width 1400
 ```
 
-## Understanding Thresholds
+## Configuration
 
-Images are only processed if they exceed ANY of these:
+### Per-Directory Configuration (Recommended)
 
-- **File Size**: > 500 KB
-- **Width**: > 1200 px
-- **Height**: > 1200 px
+Create a `.image-downscale.json` file in your target directory for custom settings:
 
-### Customizing Thresholds
+```json
+{
+  "scan_paths": ["07/Organized/Images", "Attachments"],
+  "max_width": 1200,
+  "size_threshold_kb": 500,
+  "dimension_threshold_px": 1200
+}
+```
 
-Edit `scripts/image_processor.py` and change these constants:
+**Key Features:**
+- **scan_paths**: Only scan specific subdirectories (leave empty to scan all)
+- **Automatic loading**: No CLI flags needed, just `cd` to the directory
+- **Optional**: All fields optional, use only what you need
+- **CLI override**: Command-line arguments always take precedence
+
+**Quick Setup:**
+```bash
+cd ~/second-brain
+cp ~/.claude/skills/image-downscale/.image-downscale.json.example .image-downscale.json
+# Edit with your preferred settings
+```
+
+### Understanding Thresholds
+
+Images are only processed if they exceed ANY of these (configurable via `.image-downscale.json`):
+
+- **File Size**: > 500 KB (default)
+- **Width**: > 1200 px (default)
+- **Height**: > 1200 px (default)
+
+### Global Defaults (Alternative)
+
+To change defaults for all directories, edit `scripts/image_processor.py`:
 
 ```python
 SIZE_THRESHOLD_KB = 500        # Change file size threshold

@@ -152,7 +152,49 @@ rm -rf .image-backups/2024-01-19/
 
 ## Configuration
 
-To customize thresholds, edit `scripts/image_processor.py`:
+### Option 1: Configuration File (Recommended)
+
+Create a `.image-downscale.json` file in your target directory to customize behavior:
+
+```json
+{
+  "scan_paths": ["07/Organized/Images", "Attachments"],
+  "max_width": 1200,
+  "size_threshold_kb": 500,
+  "dimension_threshold_px": 1200
+}
+```
+
+**Configuration Options:**
+- `scan_paths`: Array of subdirectories to scan (relative to root). If empty/missing, scans entire directory
+- `max_width`: Maximum width in pixels (CLI `--max-width` overrides this)
+- `size_threshold_kb`: Only process images larger than this
+- `dimension_threshold_px`: Only process images wider or taller than this
+
+**Example:** For an Obsidian vault at `~/second-brain`, create `~/second-brain/.image-downscale.json`:
+```json
+{
+  "scan_paths": ["07/Organized/Images"]
+}
+```
+
+Then run from vault root:
+```bash
+cd ~/second-brain
+uv run python {baseDir}/scripts/image_processor.py
+```
+
+**Behavior:**
+- ✓ **With config & scan_paths**: Scans only specified subdirectories
+- ✓ **With config but no scan_paths**: Scans entire directory
+- ✓ **Without config**: Scans entire directory (backward compatible)
+- ✓ **CLI path argument**: Always overrides config scan_paths
+
+See `.image-downscale.json.example` in the skill directory for a complete example.
+
+### Option 2: Edit Script Defaults
+
+To change global defaults, edit `scripts/image_processor.py`:
 
 ```python
 # Near the top of the file

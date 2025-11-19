@@ -7,10 +7,12 @@ Perfect for Obsidian vaults, presentation slides, web assets, and documentation.
 Backs up originals before replacing them.
 """
 
+import json
 import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from downscale_core import downscale_image_file, format_bytes
 
@@ -19,6 +21,36 @@ IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"}
 DEFAULT_MAX_WIDTH = 1200
 SIZE_THRESHOLD_KB = 500
 DIMENSION_THRESHOLD_PX = 1200
+
+
+def load_config(directory: Path) -> dict:
+    """
+    Load configuration from .image-downscale.json if it exists.
+
+    Args:
+        directory: Directory to search for config file
+
+    Returns:
+        Configuration dictionary with defaults if file not found
+    """
+    config_path = directory / ".image-downscale.json"
+
+    if not config_path.exists():
+        return {}
+
+    try:
+        with open(config_path) as f:
+            config = json.load(f)
+            print(f"✓ Loaded configuration from {config_path.name}")
+            return config
+    except json.JSONDecodeError as e:
+        print(f"Warning: Invalid JSON in {config_path.name}: {e}")
+        print("Continuing with default configuration...")
+        return {}
+    except Exception as e:
+        print(f"Warning: Could not read {config_path.name}: {e}")
+        print("Continuing with default configuration...")
+        return {}
 
 
 class ImageCandidate:
@@ -66,21 +98,44 @@ class ImageCandidate:
         )
 
 
-def find_images(directory_path: Path) -> list[ImageCandidate]:
-    """Find all images in the directory recursively."""
+def find_images(
+    directory_path: Path, scan_paths: Optional[list[str]] = None
+) -> list[ImageCandidate]:
+    """
+    Find all images in the directory recursively.
+
+    Args:
+        directory_path: Root directory to search from
+        scan_paths: Optional list of subdirectories to scan (relative to directory_path).
+                   If None or empty, scans entire directory_path.
+
+    Returns:
+        List of ImageCandidate objects
+    """
     images = []
 
-    for ext in IMAGE_EXTENSIONS:
-        for img_path in directory_path.rglob(f"*{ext}"):
-            # Skip hidden folders and backup folders
-            if any(part.startswith(".") for part in img_path.parts):
-                continue
+    # Determine which paths to scan
+    if scan_paths:
+        # Scan only specified subdirectories
+        search_roots = [directory_path / path for path in scan_paths]
+        # Filter to only existing directories
+        search_roots = [root for root in search_roots if root.exists() and root.is_dir()]
+    else:
+        # Scan entire directory
+        search_roots = [directory_path]
 
-            try:
-                candidate = ImageCandidate(img_path, directory_path)
-                images.append(candidate)
-            except Exception as e:
-                print(f"Warning: Could not process {img_path}: {e}")
+    for search_root in search_roots:
+        for ext in IMAGE_EXTENSIONS:
+            for img_path in search_root.rglob(f"*{ext}"):
+                # Skip hidden folders and backup folders
+                if any(part.startswith(".") for part in img_path.parts):
+                    continue
+
+                try:
+                    candidate = ImageCandidate(img_path, directory_path)
+                    images.append(candidate)
+                except Exception as e:
+                    print(f"Warning: Could not process {img_path}: {e}")
 
     return images
 
@@ -115,6 +170,7 @@ def process_directory(
     max_width: int = DEFAULT_MAX_WIDTH,
     dry_run: bool = False,
     auto_yes: bool = False,
+    config_override: Optional[dict] = None,
 ) -> None:
     """
     Interactively process images in a directory.
@@ -124,24 +180,44 @@ def process_directory(
         max_width: Maximum width for downscaled images
         dry_run: If True, don't actually modify files
         auto_yes: If True, process all without prompting
+        config_override: Optional config dict to use instead of loading from file
     """
     if not directory_path.exists():
         print(f"Error: Directory not found at {directory_path}")
         sys.exit(1)
 
+    # Load configuration
+    config = config_override if config_override is not None else load_config(directory_path)
+
+    # Apply config overrides (CLI args take precedence)
+    scan_paths = config.get("scan_paths")
+    size_threshold = config.get("size_threshold_kb", SIZE_THRESHOLD_KB)
+    dimension_threshold = config.get("dimension_threshold_px", DIMENSION_THRESHOLD_PX)
+    configured_max_width = config.get("max_width", max_width)
+
+    # CLI arg takes precedence over config
+    if max_width != DEFAULT_MAX_WIDTH:
+        configured_max_width = max_width
+
     print(f"Scanning directory: {directory_path}")
+    if scan_paths:
+        print(f"Scan paths: {', '.join(scan_paths)}")
     print("=" * 80)
 
     # Find all images
-    all_images = find_images(directory_path)
+    all_images = find_images(directory_path, scan_paths)
     print(f"Found {len(all_images)} total images")
 
-    # Filter to candidates that exceed thresholds
-    candidates = [img for img in all_images if img.exceeds_threshold()]
+    # Filter to candidates that exceed thresholds (use configured thresholds)
+    candidates = [
+        img
+        for img in all_images
+        if img.exceeds_threshold(size_kb=size_threshold, dimension_px=dimension_threshold)
+    ]
 
     if not candidates:
         print("No images exceed the size or dimension thresholds.")
-        print(f"Thresholds: >{SIZE_THRESHOLD_KB}KB or >{DIMENSION_THRESHOLD_PX}px")
+        print(f"Thresholds: >{size_threshold}KB or >{dimension_threshold}px")
         return
 
     print(f"Found {len(candidates)} images exceeding thresholds:\n")
@@ -161,7 +237,7 @@ def process_directory(
             f"  Current: {candidate.width}x{candidate.height} ({format_bytes(candidate.file_size)})"
         )
 
-        new_width, new_height = candidate.calculate_downscaled_size(max_width)
+        new_width, new_height = candidate.calculate_downscaled_size(configured_max_width)
         estimated_size = (
             candidate.file_size * (new_width * new_height) / (candidate.width * candidate.height)
         )
@@ -206,7 +282,7 @@ def process_directory(
 
             # Downscale to temporary location
             temp_path = candidate.path.with_suffix(candidate.path.suffix + ".tmp")
-            result = downscale_image_file(candidate.path, temp_path, max_width=max_width)
+            result = downscale_image_file(candidate.path, temp_path, max_width=configured_max_width)
 
             # Replace original
             temp_path.replace(candidate.path)

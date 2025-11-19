@@ -57,14 +57,48 @@ Then in Claude Code, you can say:
 
 ## Configuration
 
-Default settings:
+### Per-Directory Configuration (Recommended)
+
+Create a `.image-downscale.json` file in your target directory:
+
+```json
+{
+  "scan_paths": ["07/Organized/Images", "Attachments"],
+  "max_width": 1200,
+  "size_threshold_kb": 500,
+  "dimension_threshold_px": 1200
+}
+```
+
+**Benefits:**
+- Scan only specific subdirectories (perfect for Obsidian vaults)
+- Different settings per project/directory
+- No need to modify the skill itself
+- All options are optional - use only what you need
+
+**Example for Obsidian:**
+```bash
+# Create config in your vault
+cd ~/second-brain
+cat > .image-downscale.json << 'EOF'
+{
+  "scan_paths": ["07/Organized/Images"]
+}
+EOF
+
+# Now the skill only scans that directory
+uv run python ~/.claude/skills/image-downscale/scripts/image_processor.py
+```
+
+See `.image-downscale.json.example` for all options.
+
+### Default Settings
+
 - **Max width**: 1200px
 - **File size threshold**: > 500 KB
 - **Dimension threshold**: > 1200px (width or height)
 - **Method**: Hybrid (pre-sharpening + Lanczos + post-sharpening)
 - **Quality**: 95% (high quality JPEG)
-
-Customize by editing the constants in `scripts/image_processor.py`.
 
 ## Files
 
