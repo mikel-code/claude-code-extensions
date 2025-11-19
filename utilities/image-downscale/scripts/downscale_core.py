@@ -9,7 +9,7 @@ and documents commonly found in Obsidian vaults.
 from pathlib import Path
 from typing import Optional
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter  # type: ignore[import-untyped]
 
 
 def downscale_hybrid(
@@ -149,11 +149,12 @@ def downscale_image_file(
 
 def format_bytes(bytes_val: int) -> str:
     """Format bytes into human-readable string."""
+    value: float = float(bytes_val)
     for unit in ["B", "KB", "MB", "GB"]:
-        if bytes_val < 1024.0:
-            return f"{bytes_val:.1f} {unit}"
-        bytes_val /= 1024.0
-    return f"{bytes_val:.1f} TB"
+        if value < 1024.0:
+            return f"{value:.1f} {unit}"
+        value /= 1024.0
+    return f"{value:.1f} TB"
 
 
 if __name__ == "__main__":

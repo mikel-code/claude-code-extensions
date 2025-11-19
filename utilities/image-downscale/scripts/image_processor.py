@@ -12,7 +12,7 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from downscale_core import downscale_image_file, format_bytes
 
@@ -23,7 +23,7 @@ SIZE_THRESHOLD_KB = 500
 DIMENSION_THRESHOLD_PX = 1200
 
 
-def load_config(directory: Path) -> dict:
+def load_config(directory: Path) -> dict[str, Any]:
     """
     Load configuration from .image-downscale.json if it exists.
 
@@ -40,7 +40,7 @@ def load_config(directory: Path) -> dict:
 
     try:
         with open(config_path) as f:
-            config = json.load(f)
+            config: dict[str, Any] = json.load(f)
             print(f"✓ Loaded configuration from {config_path.name}")
             return config
     except json.JSONDecodeError as e:
@@ -63,7 +63,7 @@ class ImageCandidate:
         self.file_size = path.stat().st_size
 
         # Get dimensions
-        from PIL import Image
+        from PIL import Image  # type: ignore[import-untyped]
 
         with Image.open(path) as img:
             self.width, self.height = img.size
@@ -170,7 +170,7 @@ def process_directory(
     max_width: int = DEFAULT_MAX_WIDTH,
     dry_run: bool = False,
     auto_yes: bool = False,
-    config_override: Optional[dict] = None,
+    config_override: Optional[dict[str, Any]] = None,
 ) -> None:
     """
     Interactively process images in a directory.
