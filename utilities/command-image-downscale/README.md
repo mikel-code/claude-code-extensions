@@ -34,10 +34,23 @@ A Claude Code command for downscaling large images while preserving text readabi
    bash setup.sh
    ```
 
-2. **Symlink the command:**
+2. **Symlink the command directory:**
+
+   **Global installation** (available in all projects):
    ```bash
-   ln -s $(pwd)/image-downscale.md ~/.claude/commands/image-downscale.md
+   ln -s $(pwd) ~/.claude/commands/image-downscale
    ```
+
+   **Project-specific installation**:
+   ```bash
+   mkdir -p .claude/commands
+   ln -s $(pwd) .claude/commands/image-downscale
+   ```
+
+   This symlinks the entire directory with:
+   - `image-downscale.md` (command definition)
+   - `scripts/` (Python utilities)
+   - All necessary dependencies
 
 3. **Use in Claude Code:**
    ```

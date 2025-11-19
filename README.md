@@ -58,8 +58,12 @@ As the toolkit grows, additional domains will include:
 
    **For Commands:**
    ```bash
-   # Symlink command file to Claude's commands directory
-   ln -s $(pwd)/utilities/command-image-downscale/image-downscale.md ~/.claude/commands/
+   # Global installation (includes scripts and dependencies)
+   ln -s $(pwd)/utilities/command-image-downscale ~/.claude/commands/image-downscale
+
+   # Or project-specific installation
+   mkdir -p .claude/commands
+   ln -s $(pwd)/utilities/command-image-downscale .claude/commands/image-downscale
    ```
 
    **For Skills:**

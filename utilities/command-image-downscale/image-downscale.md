@@ -18,12 +18,19 @@ When the user asks to downscale, optimize, or reduce the size of image(s):
    - Otherwise, inform user it's already optimized
 
 3. **Downscale using the Python utility:**
+
+   The command is installed as a symlinked directory containing the scripts.
+   Find it at: `.claude/commands/image-downscale/` (project) or `~/.claude/commands/image-downscale/` (global)
+
    ```bash
-   cd <command-directory>
+   cd <command-installation-directory>
    uv run python scripts/downscale_core.py <input-path> <output-path>
    ```
 
-   **⚠️ CRITICAL:** ALWAYS use `uv run python`, never plain `python`
+   **⚠️ CRITICAL:**
+   - ALWAYS use `uv run python`, never plain `python`
+   - The installation directory contains both the command file and scripts/
+   - Check both project `.claude/` and global `~/.claude/` locations
 
 4. **Create backup** before replacing:
    - Copy original to `.image-backups/<date>/`
