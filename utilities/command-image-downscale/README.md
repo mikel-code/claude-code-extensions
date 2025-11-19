@@ -8,7 +8,7 @@ A Claude Code command for downscaling large images while preserving text readabi
 - 💾 **Safe backups** - Automatically backs up originals before replacing
 - 📝 **Text preservation** - Uses hybrid method optimized for screenshots and documents
 - ⚡ **Lightweight** - Only processes what you specify
-- 🔧 **Dual-purpose** - Use as command OR standalone Python utility
+- 🔧 **Flexible** - Use as Claude Code command, standalone script, or batch utility
 
 ## Use Cases
 
@@ -17,14 +17,12 @@ A Claude Code command for downscaling large images while preserving text readabi
 - After pasting screenshots into Obsidian notes
 - Optimizing images referenced in a document
 - Part of your writing workflow
-- Uses `downscale_core.py` directly
 
-### As Standalone Batch Utility
-- **Directory-wide**: Process hundreds of images at once
-- Bulk vault maintenance (interactive or auto)
-- Scheduled optimization (cron job)
-- Initial vault setup or periodic cleanup
-- Uses `batch_processor.py` for scanning and prompts
+### As Standalone Script
+- **Direct conversion**: Process individual images programmatically
+- Integration into your own scripts or workflows
+- One-off image optimization tasks
+- Command-line batch processing with custom logic
 
 ## Quick Start
 
@@ -48,22 +46,23 @@ A Claude Code command for downscaling large images while preserving text readabi
    "Downscale images in this note"
    ```
 
-### Option 2: Standalone Batch Utility
+### Option 2: Standalone Script
 
 1. **Install dependencies** (same as above)
 
-2. **Run directly:**
+2. **Process a single image:**
    ```bash
-   cd /path/to/your/images
-   uv run python /path/to/command-image-downscale/scripts/batch_processor.py
+   cd command-image-downscale
+   uv run python scripts/downscale_core.py input.png output.png
    ```
 
-3. **Or create a maintenance script:**
+3. **Use in your own scripts:**
    ```bash
    #!/bin/bash
-   # ~/second-brain/optimize-images.sh
-   cd ~/second-brain
-   uv run python ~/command-image-downscale/scripts/batch_processor.py
+   # Process images with custom logic
+   for img in screenshots/*.png; do
+     uv run python /path/to/scripts/downscale_core.py "$img" "$img"
+   done
    ```
 
 ## Command Usage
@@ -89,42 +88,67 @@ The `/image-downscale` command supports:
 - Downscales using hybrid method
 - Reports before/after stats
 
-## Batch Utility Usage
+## Configuration
 
-For bulk processing or maintenance, use `batch_processor.py`:
+**Default settings:**
+- **Max width**: 1200 px (maintains aspect ratio)
+- **Quality**: 95% JPEG quality
+- **Method**: Hybrid (pre-sharpen + Lanczos + post-sharpen)
 
+**Command thresholds:**
+- **File size**: > 500 KB
+- **Dimensions**: > 1200 px (width or height)
+
+For standalone script usage, specify max width as CLI argument:
+```bash
+uv run python scripts/downscale_core.py input.png output.png
+# Uses default 1200px width
+
+# Custom max width would require modifying the script or using batch_processor.py
+```
+
+## Advanced: Batch Processing Utility
+
+For bulk vault maintenance or directory-wide processing, use the `batch_processor.py` utility:
+
+**Features:**
+- Interactive prompts for each image
+- Directory scanning with threshold filtering
+- Automatic backup creation
+- Dry-run mode and auto-process option
+
+**Usage:**
 ```bash
 # Process entire directory (interactive prompts)
-uv run python scripts/batch_processor.py
+cd ~/your-vault
+uv run python /path/to/scripts/batch_processor.py
 
 # Process specific directory
 uv run python scripts/batch_processor.py /path/to/images
 
-# With custom settings
-uv run python scripts/batch_processor.py --max-width 1600 --dry-run
+# Dry run to preview changes
+uv run python scripts/batch_processor.py --dry-run
 
-# Auto-process without prompts
+# Auto-process all without prompts
 uv run python scripts/batch_processor.py --yes
+
+# Custom max width
+uv run python scripts/batch_processor.py --max-width 1600
 ```
 
-## Configuration
-
-**Default thresholds:**
-- **File size**: > 500 KB
-- **Dimensions**: > 1200 px (width or height)
-- **Max width**: 1200 px (maintains aspect ratio)
-
-To customize, edit constants in `scripts/batch_processor.py`:
+**Configuration:**
+Edit constants in `scripts/batch_processor.py`:
 ```python
 SIZE_THRESHOLD_KB = 500
 DIMENSION_THRESHOLD_PX = 1200
 DEFAULT_MAX_WIDTH = 1200
 ```
 
-Or use CLI arguments:
-```bash
-uv run python scripts/batch_processor.py --max-width 1600
-```
+**Use cases:**
+- Initial vault optimization
+- Periodic cleanup (cron job)
+- Processing hundreds of images at once
+- Scheduled maintenance scripts
 
 ## Files
 
@@ -172,18 +196,13 @@ Claude: I'll downscale that image for you.
 ✓ Backup: .image-backups/2024-11-19/screenshot-2024.png
 ```
 
-### Batch Utility Example
+### Standalone Script Example
 ```bash
-$ cd ~/second-brain
-$ uv run python ~/command-image-downscale/scripts/batch_processor.py
-
-Found 45 total images
-Found 12 images exceeding thresholds
-
-[Interactive processing...]
-
-Processed: 8 images
-Total space saved: 12.3 MB
+$ uv run python scripts/downscale_core.py screenshot.png screenshot.png
+Downscaling: screenshot.png
+Original: 3840x2160 (2.4 MB)
+Output: 1200x675 (410.0 KB)
+Saved: 2.0 MB
 ```
 
 ## Development
