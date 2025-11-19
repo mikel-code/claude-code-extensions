@@ -13,16 +13,18 @@ A Claude Code command for downscaling large images while preserving text readabi
 ## Use Cases
 
 ### As Claude Code Command
+- **Context-aware**: Optimize 1-3 specific images you're actively working with
 - After pasting screenshots into Obsidian notes
-- Optimizing images in a specific document
-- Quick optimization of 1-3 images you're working with
+- Optimizing images referenced in a document
 - Part of your writing workflow
+- Uses `downscale_core.py` directly
 
-### As Standalone Utility
-- Bulk vault maintenance (run script directly)
+### As Standalone Batch Utility
+- **Directory-wide**: Process hundreds of images at once
+- Bulk vault maintenance (interactive or auto)
 - Scheduled optimization (cron job)
-- Processing entire directories
-- Initial vault setup
+- Initial vault setup or periodic cleanup
+- Uses `batch_processor.py` for scanning and prompts
 
 ## Quick Start
 
@@ -46,14 +48,14 @@ A Claude Code command for downscaling large images while preserving text readabi
    "Downscale images in this note"
    ```
 
-### Option 2: Standalone Python Utility
+### Option 2: Standalone Batch Utility
 
 1. **Install dependencies** (same as above)
 
 2. **Run directly:**
    ```bash
    cd /path/to/your/images
-   uv run python /path/to/command-image-downscale/scripts/image_processor.py
+   uv run python /path/to/command-image-downscale/scripts/batch_processor.py
    ```
 
 3. **Or create a maintenance script:**
@@ -61,7 +63,7 @@ A Claude Code command for downscaling large images while preserving text readabi
    #!/bin/bash
    # ~/second-brain/optimize-images.sh
    cd ~/second-brain
-   uv run python ~/command-image-downscale/scripts/image_processor.py
+   uv run python ~/command-image-downscale/scripts/batch_processor.py
    ```
 
 ## Command Usage
@@ -87,22 +89,22 @@ The `/image-downscale` command supports:
 - Downscales using hybrid method
 - Reports before/after stats
 
-## Python Utility Usage
+## Batch Utility Usage
 
-For bulk processing or maintenance:
+For bulk processing or maintenance, use `batch_processor.py`:
 
 ```bash
-# Process entire directory
-uv run python scripts/image_processor.py
+# Process entire directory (interactive prompts)
+uv run python scripts/batch_processor.py
 
 # Process specific directory
-uv run python scripts/image_processor.py /path/to/images
+uv run python scripts/batch_processor.py /path/to/images
 
 # With custom settings
-uv run python scripts/image_processor.py --max-width 1600 --dry-run
+uv run python scripts/batch_processor.py --max-width 1600 --dry-run
 
 # Auto-process without prompts
-uv run python scripts/image_processor.py --yes
+uv run python scripts/batch_processor.py --yes
 ```
 
 ## Configuration
@@ -112,7 +114,7 @@ uv run python scripts/image_processor.py --yes
 - **Dimensions**: > 1200 px (width or height)
 - **Max width**: 1200 px (maintains aspect ratio)
 
-To customize, edit constants in `scripts/image_processor.py`:
+To customize, edit constants in `scripts/batch_processor.py`:
 ```python
 SIZE_THRESHOLD_KB = 500
 DIMENSION_THRESHOLD_PX = 1200
@@ -121,7 +123,7 @@ DEFAULT_MAX_WIDTH = 1200
 
 Or use CLI arguments:
 ```bash
-uv run python scripts/image_processor.py --max-width 1600
+uv run python scripts/batch_processor.py --max-width 1600
 ```
 
 ## Files
@@ -133,8 +135,8 @@ command-image-downscale/
 ├── pyproject.toml             # Python dependencies
 ├── setup.sh                   # Setup script
 └── scripts/
-    ├── downscale_core.py     # Core downscaling logic
-    └── image_processor.py    # Utility for batch processing
+    ├── downscale_core.py     # Core downscaling logic (used by command)
+    └── batch_processor.py    # Batch utility for directory processing
 ```
 
 ## Requirements
@@ -170,10 +172,10 @@ Claude: I'll downscale that image for you.
 ✓ Backup: .image-backups/2024-11-19/screenshot-2024.png
 ```
 
-### Utility Example
+### Batch Utility Example
 ```bash
 $ cd ~/second-brain
-$ uv run python ~/command-image-downscale/scripts/image_processor.py
+$ uv run python ~/command-image-downscale/scripts/batch_processor.py
 
 Found 45 total images
 Found 12 images exceeding thresholds
