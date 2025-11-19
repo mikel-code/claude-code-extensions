@@ -5,7 +5,7 @@
 ### 1. First-Time Setup
 
 ```bash
-cd /path/to/image-downscale
+cd /path/to/skill-image-downscale
 bash setup.sh
 ```
 
@@ -18,12 +18,12 @@ This only needs to be done once. It will:
 
 ```bash
 cd /path/to/your/image/directory
-uv run python /path/to/image-downscale/scripts/image_processor.py
+uv run python /path/to/skill-image-downscale/scripts/image_processor.py
 ```
 
 Or from anywhere:
 ```bash
-uv run python /path/to/image-downscale/scripts/image_processor.py /path/to/directory
+uv run python /path/to/skill-image-downscale/scripts/image_processor.py /path/to/directory
 ```
 
 **Use Cases:**
@@ -98,7 +98,7 @@ Create a `.image-downscale.json` file in your target directory for custom settin
 **Quick Setup:**
 ```bash
 cd ~/second-brain
-cp ~/.claude/skills/image-downscale/.image-downscale.json.example .image-downscale.json
+cp ~/.claude/skills/skill-image-downscale/.image-downscale.json.example .image-downscale.json
 # Edit with your preferred settings
 ```
 
@@ -224,7 +224,7 @@ Or restore from backups and try a different downscaling method (would require mo
 
 Dependencies not installed. Run:
 ```bash
-cd /path/to/image-downscale
+cd /path/to/skill-image-downscale
 uv sync
 ```
 
@@ -272,7 +272,7 @@ done
 Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-alias image-downscale='uv run python /path/to/image-downscale/scripts/image_processor.py'
+alias image-downscale='uv run python /path/to/skill-image-downscale/scripts/image_processor.py'
 ```
 
 Then use:

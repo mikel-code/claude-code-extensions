@@ -24,7 +24,7 @@ A Claude Code skill for interactively downscaling large images while preserving 
 ### 1. Install
 
 ```bash
-cd image-downscale
+cd skill-image-downscale
 bash setup.sh
 ```
 
@@ -32,7 +32,7 @@ bash setup.sh
 
 ```bash
 cd /path/to/your/image/directory
-uv run python /path/to/image-downscale/scripts/image_processor.py
+uv run python /path/to/skill-image-downscale/scripts/image_processor.py
 ```
 
 See [SKILL.md](SKILL.md) for complete documentation.
@@ -43,10 +43,10 @@ When using this as a Claude Code skill, place it in your skills directory:
 
 ```bash
 # Option 1: Clone/copy to skills directory
-cp -r image-downscale ~/.claude/skills/
+cp -r skill-image-downscale ~/.claude/skills/
 
 # Option 2: Symlink to keep it version controlled elsewhere
-ln -s /path/to/image-downscale ~/.claude/skills/image-downscale
+ln -s /path/to/skill-image-downscale ~/.claude/skills/skill-image-downscale
 ```
 
 Then in Claude Code, you can say:
@@ -87,7 +87,7 @@ cat > .image-downscale.json << 'EOF'
 EOF
 
 # Now the skill only scans that directory
-uv run python ~/.claude/skills/image-downscale/scripts/image_processor.py
+uv run python ~/.claude/skills/skill-image-downscale/scripts/image_processor.py
 ```
 
 See `.image-downscale.json.example` for all options.
@@ -103,7 +103,7 @@ See `.image-downscale.json.example` for all options.
 ## Files
 
 ```
-image-downscale/
+skill-image-downscale/
 ├── SKILL.md                  # Main skill documentation
 ├── README.md                 # This file
 ├── pyproject.toml            # Python dependencies
@@ -153,7 +153,7 @@ image-downscale/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd image-downscale
+cd skill-image-downscale
 
 # Install all dependencies including dev tools
 uv sync --all-groups

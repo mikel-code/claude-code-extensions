@@ -24,7 +24,7 @@ claude-code-extensions/
 ├── communication/               # Writing & communication
 ├── data/                        # Data analysis & visualization
 ├── utilities/                   # General-purpose tools
-│   └── image-downscale/        # Image optimization skill
+│   └── skill-image-downscale/  # Image optimization skill
 └── shared/                      # Shared libraries & resources
 ```
 
@@ -59,10 +59,10 @@ As the toolkit grows, additional domains will include:
    **For Skills:**
    ```bash
    # Option 1: Symlink to keep updates synced
-   ln -s $(pwd)/utilities/image-downscale ~/.claude/skills/image-downscale
+   ln -s $(pwd)/utilities/skill-image-downscale ~/.claude/skills/skill-image-downscale
 
    # Option 2: Copy to Claude's skills directory
-   cp -r utilities/image-downscale ~/.claude/skills/
+   cp -r utilities/skill-image-downscale ~/.claude/skills/
    ```
 
    **For Commands:**
@@ -78,7 +78,7 @@ As the toolkit grows, additional domains will include:
 
 3. **Run setup scripts (if applicable)**
    ```bash
-   cd utilities/image-downscale
+   cd utilities/skill-image-downscale
    bash setup.sh
    ```
 
@@ -90,9 +90,9 @@ As the toolkit grows, additional domains will include:
 Interactively downscale large images while preserving text readability. Perfect for Obsidian vaults, presentations, web assets, and documentation.
 
 - **Type:** Skill
-- **Location:** `utilities/image-downscale/`
+- **Location:** `utilities/skill-image-downscale/`
 - **Use Cases:** Obsidian optimization, presentation slides, web assets
-- **Learn More:** [Image Downscale README](utilities/image-downscale/README.md)
+- **Learn More:** [Image Downscale README](utilities/skill-image-downscale/README.md)
 
 **Usage:**
 ```
@@ -113,7 +113,7 @@ Skills are specialized capabilities that Claude Code can invoke to perform speci
 - Can use Python, shell scripts, or other tools
 - Are invoked naturally in conversation
 
-**Example:** "Use the image-downscale skill to optimize my screenshots"
+**Example:** "Use the skill-image-downscale skill to optimize my screenshots"
 
 ### Commands
 Commands are quick slash commands for common tasks. They:

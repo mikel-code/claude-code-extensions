@@ -90,7 +90,7 @@ These can be customized by editing the constants at the top of `scripts/image_pr
 
 ```bash
 $ cd ~/Documents/MyImages
-$ uv run python ~/image-downscale/scripts/image_processor.py
+$ uv run python ~/skill-image-downscale/scripts/image_processor.py
 
 Image Downscaler
 ================================================================================
